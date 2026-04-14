@@ -7,6 +7,7 @@ import (
 )
 
 var ErrNotImplemented = errors.New("repository method not implemented")
+var ErrNotFound = errors.New("resource not found")
 
 type projectRepositoryStub struct{}
 

@@ -19,6 +19,6 @@ SET title = $2,
 WHERE id = $1
 RETURNING id, project_id, title, description, status, priority, created_at, updated_at;
 
--- name: DeleteTask :exec
+-- name: DeleteTask :execrows
 DELETE FROM tasks
 WHERE id = $1;

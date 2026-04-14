@@ -8,6 +8,21 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    networks:
+      - private_net
+
+  migrations:
+    build:
+      context: ./db/migrations
+    container_name: project-tracker-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - private_net
 
@@ -20,7 +35,8 @@ services:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/project_tracker?sslmode=disable
       CORS_ALLOWED_ORIGINS: http://localhost:3000
     depends_on:
-      - postgres
+      migrations:
+        condition: service_completed_successfully
     ports:
       - "8080:8080"
     networks:

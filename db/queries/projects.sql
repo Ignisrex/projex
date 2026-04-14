@@ -21,6 +21,6 @@ SET name = $2,
 WHERE id = $1
 RETURNING id, name, description, created_at, updated_at;
 
--- name: DeleteProject :exec
+-- name: DeleteProject :execrows
 DELETE FROM projects
 WHERE id = $1;

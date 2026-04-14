@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { createProject, getHealth, getProjects } from "../lib/api";
+import { createProject, deleteProject, getHealth, getProjects } from "../lib/api";
 
 export default function ProjectsPage() {
   const [health, setHealth] = useState("checking");
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
   async function load() {
+    setLoading(true);
     setError("");
     try {
       const healthData = await getHealth();
@@ -27,11 +29,22 @@ export default function ProjectsPage() {
       setProjects([]);
       setError(e.message);
     }
+    setLoading(false);
   }
 
   useEffect(() => {
     load();
   }, []);
+
+  async function onDeleteProject(projectId) {
+    setError("");
+    try {
+      await deleteProject(projectId);
+      await load();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
 
   async function onCreateProject(e) {
     e.preventDefault();
@@ -54,13 +67,21 @@ export default function ProjectsPage() {
 
       <section className="card">
         <h2>Projects</h2>
-        {projects.length === 0 ? (
+        {loading ? (
+          <p>Loading…</p>
+        ) : projects.length === 0 ? (
           <p>No projects yet (or API methods are still scaffolded).</p>
         ) : (
           <ul>
             {projects.map((project) => (
-              <li key={project.id}>
+              <li key={project.id} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Link href={`/projects/${project.id}`}>{project.name || project.id}</Link>
+                <button
+                  onClick={() => onDeleteProject(project.id)}
+                  style={{ background: "#b91c1c", fontSize: "0.8rem", padding: "0.25rem 0.5rem" }}
+                >
+                  Delete
+                </button>
               </li>
             ))}
           </ul>
